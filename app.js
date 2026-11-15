@@ -33,16 +33,31 @@ function prikaziGresku() {
   `;
 }
 
+const rute = {
+    "/": { prikaz: prikaziPocetnu, naslov: "Početna" },
+    "/o-aplikaciji": { prikaz: prikaziOAplikaciji, naslov: "O aplikaciji" },
+};
+
+function oznaciAktivno(put) {
+    document.querySelectorAll("nav a").forEach((a) => {
+        a.classList.toggle("active", a.getAttribute("href") === "#" + put);
+    });
+}
+
 function usmjeri() {
     const put = location.hash.slice(1) || "/";
+    const ruta = rute[put];
 
-    if (put === "/") {
-        prikaziPocetnu();
-    } else if (put === "/o-aplikaciji") {
-        prikaziOAplikaciji();
+    if (ruta) {
+        ruta.prikaz();
+        document.title = ruta.naslov + " – Mini SPA";
     } else {
         prikaziGresku();
+        document.title = "Nije pronađeno – Mini SPA";
     }
+
+    oznaciAktivno(put);
+    window.scrollTo(0, 0);
 }
 
 window.addEventListener("hashchange", usmjeri);
