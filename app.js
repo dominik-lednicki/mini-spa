@@ -117,6 +117,12 @@ function iscrtajPopis() {
       <h3>${k.name}</h3>
       <p>${k.email}</p>
       <small>${k.company.name}</small>
+      <div class="vise" hidden>
+        <p><strong>Grad:</strong> ${k.address.city}</p>
+        <p><strong>Telefon:</strong> ${k.phone}</p>
+        <p><strong>Web:</strong> ${k.website}</p>
+      </div>
+      <button class="detalji" aria-expanded="false">Prikaži detalje</button>
     </div>
   `,
         )
@@ -124,6 +130,17 @@ function iscrtajPopis() {
 }
 
 app.addEventListener("click", async (e) => {
+    const detalji = e.target.closest(".detalji");
+    if (detalji) {
+        const vise = detalji.closest(".card").querySelector(".vise");
+        vise.hidden = !vise.hidden;
+        detalji.textContent = vise.hidden
+            ? "Prikaži detalje"
+            : "Sakrij detalje";
+        detalji.setAttribute("aria-expanded", String(!vise.hidden));
+        return;
+    }
+
     if (e.target.closest(".ponovi")) {
         stanje.ucitavanje = true;
         iscrtajPopis();
