@@ -2,7 +2,11 @@ const app = document.getElementById("app");
 
 const API_URL = "https://jsonplaceholder.typicode.com/users";
 
-let korisnici = [];
+const stanje = {
+    korisnici: [],
+    ucitavanje: false,
+    greska: null,
+};
 
 function prikaziPocetnu() {
     app.innerHTML = `
@@ -16,26 +20,14 @@ function prikaziPocetnu() {
 async function prikaziKorisnike() {
     app.innerHTML = `
     <h1>Korisnici</h1>
-    <div id="popis"><p class="poruka">Učitavanje…</p></div>
+    <div id="popis"></div>
   `;
 
-    if (korisnici.length === 0) {
-        const odgovor = await fetch(API_URL);
-        korisnici = await odgovor.json();
+    if (stanje.korisnici.length === 0) {
+        iscrtajPopis();
+        await ucitajKorisnike();
     }
-
-    const popis = document.getElementById("popis");
-    popis.innerHTML = korisnici
-        .map(
-            (k) => `
-    <div class="card">
-      <h3>${k.name}</h3>
-      <p>${k.email}</p>
-      <small>${k.company.name}</small>
-    </div>
-  `,
-        )
-        .join("");
+    iscrtajPopis();
 }
 
 function prikaziOAplikaciji() {
@@ -61,6 +53,65 @@ function prikaziGresku() {
        <a href="#/">početnu stranicu</a>.</p>
   `;
 }
+
+async function ucitajKorisnike() {
+    stanje.ucitavanje = true;
+    stanje.greska = null;
+
+    try {
+        const odgovor = await fetch(API_URL);
+        if (!odgovor.ok) {
+            throw new Error("Poslužitelj je vratio status " + odgovor.status);
+        }
+        stanje.korisnici = await odgovor.json();
+    } catch (greska) {
+        console.error("Greška pri dohvaćanju:", greska);
+        stanje.greska =
+            "Podatke nije moguće učitati. Provjerite internetsku vezu.";
+    }
+
+    stanje.ucitavanje = false;
+}
+
+function iscrtajPopis() {
+    const popis = document.getElementById("popis");
+    if (!popis) return;
+
+    if (stanje.ucitavanje) {
+        popis.innerHTML = `<p class="poruka">Učitavanje…</p>`;
+        return;
+    }
+
+    if (stanje.greska) {
+        popis.innerHTML = `
+      <div class="poruka greska">
+        <p>${stanje.greska}</p>
+        <button class="ponovi">Pokušaj ponovno</button>
+      </div>`;
+        return;
+    }
+
+    popis.innerHTML = stanje.korisnici
+        .map(
+            (k) => `
+    <div class="card">
+      <h3>${k.name}</h3>
+      <p>${k.email}</p>
+      <small>${k.company.name}</small>
+    </div>
+  `,
+        )
+        .join("");
+}
+
+app.addEventListener("click", async (e) => {
+    if (e.target.closest(".ponovi")) {
+        stanje.ucitavanje = true;
+        iscrtajPopis();
+        await ucitajKorisnike();
+        iscrtajPopis();
+    }
+});
 
 const rute = {
     "/": { prikaz: prikaziPocetnu, naslov: "Početna" },
