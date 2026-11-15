@@ -6,6 +6,7 @@ const stanje = {
     korisnici: [],
     ucitavanje: false,
     greska: null,
+    pretraga: "",
 };
 
 function prikaziPocetnu() {
@@ -20,8 +21,16 @@ function prikaziPocetnu() {
 async function prikaziKorisnike() {
     app.innerHTML = `
     <h1>Korisnici</h1>
+    <input id="trazi" type="search" placeholder="Traži po imenu…"
+           aria-label="Traži korisnike po imenu"
+           value="${stanje.pretraga}">
     <div id="popis"></div>
   `;
+
+    document.getElementById("trazi").addEventListener("input", (e) => {
+        stanje.pretraga = e.target.value;
+        iscrtajPopis();
+    });
 
     if (stanje.korisnici.length === 0) {
         iscrtajPopis();
@@ -91,7 +100,17 @@ function iscrtajPopis() {
         return;
     }
 
-    popis.innerHTML = stanje.korisnici
+    const trazeno = stanje.pretraga.trim().toLowerCase();
+    const filtrirani = stanje.korisnici.filter((k) =>
+        k.name.toLowerCase().includes(trazeno),
+    );
+
+    if (filtrirani.length === 0) {
+        popis.innerHTML = `<p class="poruka">Nema korisnika za zadani pojam.</p>`;
+        return;
+    }
+
+    popis.innerHTML = filtrirani
         .map(
             (k) => `
     <div class="card">
