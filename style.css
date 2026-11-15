@@ -1,0 +1,123 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f1f5f9;
+    color: #0f172a;
+    line-height: 1.5;
+}
+
+/* Izbornik */
+nav {
+    display: flex;
+    gap: 16px;
+    padding: 0 24px;
+    background: #1e293b;
+}
+
+nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 16px 4px;
+    border-bottom: 3px solid transparent;
+}
+
+nav a:hover {
+    color: #ffffff;
+}
+
+nav a.active {
+    color: #ffffff;
+    border-bottom: 3px solid #14b8a6;
+}
+
+#app {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+h1 {
+    margin-top: 8px;
+}
+
+a {
+    color: #0f766e;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid #6366f1;
+    outline-offset: 2px;
+}
+
+#trazi {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.card {
+    background: #ffffff;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+.card h3 {
+    margin: 0 0 4px;
+}
+
+.card p {
+    margin: 0;
+    color: #475569;
+}
+
+.card small {
+    color: #64748b;
+}
+
+.vise {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.vise p {
+    margin: 4px 0;
+}
+
+button {
+    font-size: 14px;
+    padding: 8px 14px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #14b8a6;
+    color: #0f172a;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2dd4bf;
+}
+
+.poruka {
+    padding: 16px;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.poruka.greska {
+    background: #fee2e2;
+    color: #7f1d1d;
+}
