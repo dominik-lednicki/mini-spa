@@ -3,14 +3,22 @@ const app = document.getElementById("app");
 const API_URL = "https://jsonplaceholder.typicode.com/users";
 
 const stanje = {
-    korisnici: [],
-    ucitavanje: false,
-    greska: null,
-    pretraga: "",
+  korisnici: [],
+  ucitavanje: false,
+  greska: null,
+  pretraga: ""
 };
 
+function escapeHtml(tekst) {
+  return String(tekst)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function prikaziPocetnu() {
-    app.innerHTML = `
+  app.innerHTML = `
     <h1>Dobrodošli</h1>
     <p>Ovo je početna stranica jednostranične web aplikacije (SPA).</p>
     <p>Kliknite na <a href="#/korisnici">Korisnici</a> i primijetite da se
@@ -19,28 +27,28 @@ function prikaziPocetnu() {
 }
 
 async function prikaziKorisnike() {
-    app.innerHTML = `
+  app.innerHTML = `
     <h1>Korisnici</h1>
     <input id="trazi" type="search" placeholder="Traži po imenu…"
            aria-label="Traži korisnike po imenu"
-           value="${stanje.pretraga}">
+           value="${escapeHtml(stanje.pretraga)}">
     <div id="popis"></div>
   `;
 
-    document.getElementById("trazi").addEventListener("input", (e) => {
-        stanje.pretraga = e.target.value;
-        iscrtajPopis();
-    });
-
-    if (stanje.korisnici.length === 0) {
-        iscrtajPopis();
-        await ucitajKorisnike();
-    }
+  document.getElementById("trazi").addEventListener("input", (e) => {
+    stanje.pretraga = e.target.value;
     iscrtajPopis();
+  });
+
+  if (stanje.korisnici.length === 0) {
+    iscrtajPopis();
+    await ucitajKorisnike();
+  }
+  iscrtajPopis();
 }
 
 function prikaziOAplikaciji() {
-    app.innerHTML = `
+  app.innerHTML = `
     <h1>O aplikaciji</h1>
     <p>Mini SPA prikazuje osnovne dijelove jednostranične aplikacije:</p>
     <ul>
@@ -56,7 +64,7 @@ function prikaziOAplikaciji() {
 }
 
 function prikaziGresku() {
-    app.innerHTML = `
+  app.innerHTML = `
     <h1>Stranica nije pronađena</h1>
     <p>Tražena putanja ne postoji. Vratite se na
        <a href="#/">početnu stranicu</a>.</p>
@@ -64,117 +72,110 @@ function prikaziGresku() {
 }
 
 async function ucitajKorisnike() {
-    stanje.ucitavanje = true;
-    stanje.greska = null;
+  stanje.ucitavanje = true;
+  stanje.greska = null;
 
-    try {
-        const odgovor = await fetch(API_URL);
-        if (!odgovor.ok) {
-            throw new Error("Poslužitelj je vratio status " + odgovor.status);
-        }
-        stanje.korisnici = await odgovor.json();
-    } catch (greska) {
-        console.error("Greška pri dohvaćanju:", greska);
-        stanje.greska =
-            "Podatke nije moguće učitati. Provjerite internetsku vezu.";
+  try {
+    const odgovor = await fetch(API_URL);
+    if (!odgovor.ok) {
+      throw new Error("Poslužitelj je vratio status " + odgovor.status);
     }
+    stanje.korisnici = await odgovor.json();
+  } catch (greska) {
+    console.error("Greška pri dohvaćanju:", greska);
+    stanje.greska = "Podatke nije moguće učitati. Provjerite internetsku vezu.";
+  }
 
-    stanje.ucitavanje = false;
+  stanje.ucitavanje = false;
 }
 
 function iscrtajPopis() {
-    const popis = document.getElementById("popis");
-    if (!popis) return;
+  const popis = document.getElementById("popis");
+  if (!popis) return;
 
-    if (stanje.ucitavanje) {
-        popis.innerHTML = `<p class="poruka">Učitavanje…</p>`;
-        return;
-    }
+  if (stanje.ucitavanje) {
+    popis.innerHTML = `<p class="poruka">Učitavanje…</p>`;
+    return;
+  }
 
-    if (stanje.greska) {
-        popis.innerHTML = `
+  if (stanje.greska) {
+    popis.innerHTML = `
       <div class="poruka greska">
-        <p>${stanje.greska}</p>
+        <p>${escapeHtml(stanje.greska)}</p>
         <button class="ponovi">Pokušaj ponovno</button>
       </div>`;
-        return;
-    }
+    return;
+  }
 
-    const trazeno = stanje.pretraga.trim().toLowerCase();
-    const filtrirani = stanje.korisnici.filter((k) =>
-        k.name.toLowerCase().includes(trazeno),
-    );
+  const trazeno = stanje.pretraga.trim().toLowerCase();
+  const filtrirani = stanje.korisnici.filter((k) =>
+    k.name.toLowerCase().includes(trazeno)
+  );
 
-    if (filtrirani.length === 0) {
-        popis.innerHTML = `<p class="poruka">Nema korisnika za zadani pojam.</p>`;
-        return;
-    }
+  if (filtrirani.length === 0) {
+    popis.innerHTML = `<p class="poruka">Nema korisnika za zadani pojam.</p>`;
+    return;
+  }
 
-    popis.innerHTML = filtrirani
-        .map(
-            (k) => `
+  popis.innerHTML = filtrirani.map((k) => `
     <div class="card">
-      <h3>${k.name}</h3>
-      <p>${k.email}</p>
-      <small>${k.company.name}</small>
+      <h3>${escapeHtml(k.name)}</h3>
+      <p>${escapeHtml(k.email)}</p>
+      <small>${escapeHtml(k.company.name)}</small>
       <div class="vise" hidden>
-        <p><strong>Grad:</strong> ${k.address.city}</p>
-        <p><strong>Telefon:</strong> ${k.phone}</p>
-        <p><strong>Web:</strong> ${k.website}</p>
+        <p><strong>Grad:</strong> ${escapeHtml(k.address.city)}</p>
+        <p><strong>Telefon:</strong> ${escapeHtml(k.phone)}</p>
+        <p><strong>Web:</strong> ${escapeHtml(k.website)}</p>
       </div>
       <button class="detalji" aria-expanded="false">Prikaži detalje</button>
     </div>
-  `,
-        )
-        .join("");
+  `).join("");
 }
 
 app.addEventListener("click", async (e) => {
-    const detalji = e.target.closest(".detalji");
-    if (detalji) {
-        const vise = detalji.closest(".card").querySelector(".vise");
-        vise.hidden = !vise.hidden;
-        detalji.textContent = vise.hidden
-            ? "Prikaži detalje"
-            : "Sakrij detalje";
-        detalji.setAttribute("aria-expanded", String(!vise.hidden));
-        return;
-    }
+  const detalji = e.target.closest(".detalji");
+  if (detalji) {
+    const vise = detalji.closest(".card").querySelector(".vise");
+    vise.hidden = !vise.hidden;
+    detalji.textContent = vise.hidden ? "Prikaži detalje" : "Sakrij detalje";
+    detalji.setAttribute("aria-expanded", String(!vise.hidden));
+    return;
+  }
 
-    if (e.target.closest(".ponovi")) {
-        stanje.ucitavanje = true;
-        iscrtajPopis();
-        await ucitajKorisnike();
-        iscrtajPopis();
-    }
+  if (e.target.closest(".ponovi")) {
+    stanje.ucitavanje = true;
+    iscrtajPopis();
+    await ucitajKorisnike();
+    iscrtajPopis();
+  }
 });
 
 const rute = {
-    "/": { prikaz: prikaziPocetnu, naslov: "Početna" },
-    "/korisnici": { prikaz: prikaziKorisnike, naslov: "Korisnici" },
-    "/o-aplikaciji": { prikaz: prikaziOAplikaciji, naslov: "O aplikaciji" },
+  "/": { prikaz: prikaziPocetnu, naslov: "Početna" },
+  "/korisnici": { prikaz: prikaziKorisnike, naslov: "Korisnici" },
+  "/o-aplikaciji": { prikaz: prikaziOAplikaciji, naslov: "O aplikaciji" }
 };
 
 function oznaciAktivno(put) {
-    document.querySelectorAll("nav a").forEach((a) => {
-        a.classList.toggle("active", a.getAttribute("href") === "#" + put);
-    });
+  document.querySelectorAll("nav a").forEach((a) => {
+    a.classList.toggle("active", a.getAttribute("href") === "#" + put);
+  });
 }
 
 function usmjeri() {
-    const put = location.hash.slice(1) || "/";
-    const ruta = rute[put];
+  const put = location.hash.slice(1) || "/";
+  const ruta = rute[put];
 
-    if (ruta) {
-        ruta.prikaz();
-        document.title = ruta.naslov + " – Mini SPA";
-    } else {
-        prikaziGresku();
-        document.title = "Nije pronađeno – Mini SPA";
-    }
+  if (ruta) {
+    ruta.prikaz();
+    document.title = ruta.naslov + " – Mini SPA";
+  } else {
+    prikaziGresku();
+    document.title = "Nije pronađeno – Mini SPA";
+  }
 
-    oznaciAktivno(put);
-    window.scrollTo(0, 0);
+  oznaciAktivno(put);
+  window.scrollTo(0, 0);
 }
 
 window.addEventListener("hashchange", usmjeri);
